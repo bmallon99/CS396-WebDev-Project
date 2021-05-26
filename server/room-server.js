@@ -7,6 +7,23 @@ console.log("Application listening on PORT: " + port);
 // Dictionary mapping room numbers to set of clients (sockets)
 let rooms = {};
 
+let votes = {};
+/*
+    votes: {
+        [roomCode1]: {
+            [suggestion1]: [numVotes],
+            [suggestion2]: [numVotes],
+            ...
+        },
+        [roomCode2]: {
+            [suggestion1]: [numVotes],
+            [suggestion2]: [numVotes],
+            ...
+        },
+        ...
+    }
+*/
+
 const totalRooms = 8999;
 const smallestRoom = 1000;
 
@@ -34,6 +51,7 @@ wss.on("connection", socket => {
         if (data.type === "create") {
             const roomCode = generateRoomCode();
             rooms[roomCode] = new Set([socket]);
+            votes[roomCode] = {};
             const message = {
                 "type": "create",
                 "status": "okay",
@@ -49,6 +67,7 @@ wss.on("connection", socket => {
                 const message = {
                     "type": "join",
                     "status": "okay",
+                    "roomCode": roomCode,
                     "members": rooms[roomCode].size
                 }
                 rooms[roomCode].forEach(member => {
@@ -58,6 +77,39 @@ wss.on("connection", socket => {
             } else {
                 const message = {
                     "type": "join",
+                    "status": "bad",
+                }      
+                sendJSON(message, socket);      
+            }
+        } else if (data.type === "suggest") {
+            console.log("good");
+            const roomCode = data.roomCode;
+            if (roomCode in rooms) {
+                const suggestion = data.suggestion;
+                let returnMessage;
+                if (suggestion in votes[roomCode]) {
+                    returnMessage = {
+                        "type": "suggest",
+                        "status": "duplicate",
+                        "suggestions": Object.keys(votes[roomCode])
+                    }
+                } else {
+                    votes[roomCode][suggestion] = 0;
+                    returnMessage = {
+                        "type": "suggest",
+                        "status": "okay",
+                        "suggestions": Object.keys(votes[roomCode])
+                    }
+                }
+                
+                rooms[roomCode].forEach(member => {
+                    sendJSON(returnMessage, member);
+                });
+                return;
+            } else {
+                console.log("bad");
+                const message = {
+                    "type": "suggest",
                     "status": "bad",
                 }      
                 sendJSON(message, socket);      
