@@ -6,23 +6,38 @@ console.log("Application listening on PORT: " + port);
 
 // Dictionary mapping room numbers to set of clients (sockets)
 let rooms = {};
+/*
+    rooms: {
+        roomCode1: [socket1, socket2, ...]
+        roomCode2: [socket1, socket2, ...]
+    }
+*/
+
+let names = {};
+/*
+    names: {
+        roomCode1: [name1, name2, ...]
+        roomCode2: [name1, name2, ...]
+    }
+*/
 
 let votes = {};
 /*
     votes: {
-        [roomCode1]: {
-            [suggestion1]: [numVotes],
-            [suggestion2]: [numVotes],
+        roomCode1: {
+            suggestion1: numVotes,
+            suggestion2: numVotes,
             ...
         },
-        [roomCode2]: {
-            [suggestion1]: [numVotes],
-            [suggestion2]: [numVotes],
+        roomCode2: {
+            suggestion1: numVotes,
+            suggestion2: numVotes,
             ...
         },
         ...
     }
 */
+
 
 const totalRooms = 8999;
 const smallestRoom = 1000;
@@ -51,10 +66,12 @@ wss.on("connection", socket => {
         if (data.type === "create") {
             const roomCode = generateRoomCode();
             rooms[roomCode] = new Set([socket]);
+            names[roomCode] = new Set([data.name]);
             votes[roomCode] = {};
             const message = {
                 "type": "create",
                 "status": "okay",
+                "members": names[roomCode],
                 "roomCode": roomCode
             }
             sendJSON(message, socket);
@@ -64,11 +81,12 @@ wss.on("connection", socket => {
             const roomCode = data.roomCode;
             if (roomCode in rooms) {
                 rooms[roomCode].add(socket);
+                names[roomCode].add(data.name);
                 const message = {
                     "type": "join",
                     "status": "okay",
                     "roomCode": roomCode,
-                    "members": rooms[roomCode].size
+                    "members": names[roomCode]
                 }
                 rooms[roomCode].forEach(member => {
                     sendJSON(message, member);

@@ -1,0 +1,27 @@
+
+#join-room {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#join-room span {
+    display: flex;
+    flex-direction: column;
+    margin: 0.5rem;   
+}
+
+#join-room label {
+    font-weight: bold;
+}
+
+#join-room input {
+    margin-top: 0.25rem;
+    font-size: 1rem;
+    height: 2rem;
+}
+
+#join-room button {
+    width: 75%;
+    margin-bottom: 0.25rem;
+}

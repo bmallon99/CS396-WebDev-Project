@@ -1,11 +1,14 @@
 import './Home.css';
 import React from 'react';
+import HeaderBar from './HeaderBar.js';
+import JoinRoom from './JoinRoom.js';
+import CreateRoom from './CreateRoom.js';
 
 const ws = window.WebSocket || window.MozWebSocket;
 const wssURI = 'ws://localhost';
 const wssPort = '8081';
 
-class App extends React.Component {
+class Home extends React.Component {
   constructor(props) {
       super(props);
       this.state = {
@@ -14,6 +17,9 @@ class App extends React.Component {
         inputtedCode: "",
         inputtedSuggestion: "",
         allSuggestions: [],
+        name: "",
+        showJoin: false,
+        showCreate: false,
       };
   }
 
@@ -77,16 +83,40 @@ class App extends React.Component {
   }
 
   createRoom = () => {
+    if (this.props.name === "") {
+      console.log("Please enter a name oh god oh fuck");
+    } else {
       this.initializeConnection(() => {
         this.sendMessage({
-          type: "create"
+          type: "create",
+          name: this.state.name
         });
       });
+      this.props.history.push('/suggest');
+    }
+  }
+
+  toggleJoinInput = () => {
+    this.setState({
+      showJoin: !this.state.showJoin
+    });
+  }
+
+  toggleCreateInput = () => {
+    this.setState({
+      showCreate: !this.state.showCreate
+    });
   }
 
   handleRoomInput = ev => {
     this.setState({
       inputtedCode: ev.target.value
+    });
+  }
+
+  handleNameInput = ev => {
+    this.setState({
+      name: ev.target.value
     });
   }
   
@@ -95,7 +125,8 @@ class App extends React.Component {
     this.initializeConnection(() => {
       this.sendMessage({
         type: "join",
-        roomCode: parseInt(this.state.inputtedCode)
+        roomCode: parseInt(this.state.inputtedCode),
+        name: this.state.name
       });
     });
   }
@@ -118,21 +149,21 @@ class App extends React.Component {
   render() {
       return (
         <div>
-          <h1>Can't decide???</h1>
-          <button onClick={this.createRoom}>Create Room</button>
-          Room Code: {this.state.roomCode}
-          <button onClick={this.joinRoom}>Join room</button>
-          <input onChange={this.handleRoomInput}></input>
-          <p>Input Suggestions:</p>
-          <input onChange={this.handleSuggestionInput}></input>
-          <button onClick={this.submitSuggestion}>Submit Suggestion</button>
-          <p>Suggestions:</p>
-          <ul>{this.state.allSuggestions.map(s => (
-            <li key={s}>{s}</li>
-          ))}</ul>
+          <HeaderBar title="Can't Decide?"/>
+          <div id="home">
+            { !(this.state.showJoin || this.state.showCreate) &&
+              <div id="home-buttons">
+                <button className="btn" onClick={this.toggleCreateInput}>Create Room</button>
+                {/* Room Code: {this.state.roomCode} */}
+                <button className="btn" onClick={this.toggleJoinInput}>Join Room</button>
+              </div>
+            }
+            { this.state.showJoin && <JoinRoom handleRoomInput={this.handleRoomInput} handleNameInput={this.handleNameInput} joinRoom={this.joinRoom} cancelJoin={this.toggleJoinInput}/> }
+            { this.state.showCreate && <CreateRoom handleNameInput={this.handleNameInput} cancelCreate={this.toggleCreateInput} createRoom={this.createRoom}/> }
+          </div>
         </div>
       );
     }
 }
 
-export default App;
+export default Home;
