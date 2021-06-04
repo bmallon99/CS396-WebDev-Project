@@ -9,7 +9,7 @@ const port = process.env.PORT || 8081;
 // const INDEX = '/index.html';
 
 const server = express()
-  .use((req, res) => res.sendFile(path.resolve(__dirname, '../client/build')))
+  .use(express.static(path.resolve(__dirname, '../client/build')))
   .listen(port, () => console.log(`Listening on ${port}`));
 
 // const port = process.env.PORT || 8081;
