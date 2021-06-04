@@ -3,6 +3,7 @@
 
 const express = require('express');
 const { Server } = require('ws');
+const path = require('path');
 
 const port = process.env.PORT || 8081;
 // const INDEX = '/index.html';
