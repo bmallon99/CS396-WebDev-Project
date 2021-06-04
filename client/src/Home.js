@@ -9,7 +9,7 @@ import ResultsPage from './ResultsPage.js';
 
 
 const ws = window.WebSocket || window.MozWebSocket;
-// const wssURI = 'ws://localhost';
+// const wssURI = 'ws://localhost:8081';
 const wssURI = window.location.origin.replace(/^http/, 'ws');
 // const wssPort = '8081';
 
@@ -80,7 +80,8 @@ class Home extends React.Component {
               if (data.status === "okay") {
                 this.setState({
                   roomCode: data.roomCode,
-                  allNames: data.members
+                  allNames: data.members,
+                  allSuggestions: data.suggestions
                 });
                 this.changeScreen(3);
               }
@@ -111,7 +112,20 @@ class Home extends React.Component {
               }
             }
           }
+          else if (data.type === "disconnect") {
+            this.setState({
+              allNames: data.members
+            })
+          }
       };
+
+      window.addEventListener('beforeunload', () => {
+        this.sendMessage({
+          "type": "disconnect",
+          "roomCode": this.state.roomCode,
+          "name": this.state.name,
+        });
+      });
   }
 
   sendMessage = (data) => {
@@ -202,7 +216,7 @@ class Home extends React.Component {
     this.sendMessage({
       type: "startVote",
       roomCode: roomCode,
-    })
+    });
   }
 
   //////////////////////

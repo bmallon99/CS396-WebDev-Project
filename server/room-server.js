@@ -88,7 +88,9 @@ const calculateWinner = (roomCode) => {
 }
 
 const teardown = (roomCode) => {
-
+    delete rooms[roomCode];
+    delete names[roomCode];
+    delete votes[roomCode];
 }
 
 wss.on("connection", socket => {
@@ -124,7 +126,8 @@ wss.on("connection", socket => {
                     "type": "join",
                     "status": "okay",
                     "roomCode": roomCode,
-                    "members": Array.from(names[roomCode])
+                    "members": Array.from(names[roomCode]),
+                    "suggestions": Object.keys(votes[roomCode]["suggestions"]),
                 }
                 rooms[roomCode].forEach(member => {
                     sendJSON(message, member);
@@ -231,6 +234,26 @@ wss.on("connection", socket => {
                 }      
                 sendJSON(message, socket);      
             }
+        } else if (data.type === "disconnect") {
+            let returnMessage;
+            const roomCode = data.roomCode;
+            if (roomCode in rooms && roomCode in names) {
+                names[roomCode].delete(data.name);
+                rooms[roomCode].delete(socket);
+                returnMessage = {
+                    "type": "disconnect",
+                    "status": "okay",
+                    "members": Array.from(names[roomCode]),
+                }
+            } else {
+                returnMessage =  {
+                    "type": "disconnect",
+                    "status": "bad",
+                }
+            }
+            rooms[roomCode].forEach(member => {
+                sendJSON(returnMessage, member);
+            });
         }
 
         // this loop sends the message that was just received to all the connected clients:
