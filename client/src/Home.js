@@ -88,6 +88,14 @@ class Home extends React.Component {
                  allSuggestions: data.suggestions
               });
           } 
+          else if (data.type === "startVote") {
+            if (data.status === "okay") {
+              this.setState({
+                allSuggestions: data.suggestions
+              });
+              this.changeScreen(4)
+            }
+          }
           else if (data.type === "vote") {
             if (data.status === "okay") {
               this.setState({
@@ -187,6 +195,14 @@ class Home extends React.Component {
     })
   }
 
+  endSuggestions = () => {
+    const { roomCode } = this.state;
+    this.sendMessage({
+      type: "startVote",
+      roomCode: roomCode,
+    })
+  }
+
   //////////////////////
   //  handling votes  //
   //////////////////////
@@ -261,7 +277,7 @@ class Home extends React.Component {
                              suggestions={this.state.allSuggestions} 
                              handleSuggestion={this.handleSuggestionInput} 
                              submitSuggestion={this.submitSuggestion}
-                             finishSuggestions={() => this.changeScreen(4)}/>
+                             finishSuggestions={this.endSuggestions}/>
           </div>
         );
       case 4: // vote
