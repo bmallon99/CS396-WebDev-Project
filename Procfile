@@ -1,1 +1,2 @@
-web: node server/room-server.js
+web: node client
+worker: node server/room-server.js
