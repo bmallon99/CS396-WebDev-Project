@@ -25,14 +25,20 @@ let votes = {};
 /*
     votes: {
         roomCode1: {
-            suggestion1: numVotes,
-            suggestion2: numVotes,
-            ...
+            peopleVoted: num,
+            suggestions: {
+                suggestion1: numVotes,
+                suggestion2: numVotes,
+                ...
+            }
         },
         roomCode2: {
-            suggestion1: numVotes,
-            suggestion2: numVotes,
-            ...
+            peopleVoted: num,
+            suggestions: {
+                suggestion1: numVotes,
+                suggestion2: numVotes,
+                ...
+            }
         },
         ...
     }
@@ -55,6 +61,22 @@ const generateRoomCode = () => {
     return roomCode;
 }
 
+const calculateWinner = (roomCode) => {
+    max_sug = null;
+    max = 0;
+    for (const [suggestion, v] of Object.entries(votes[roomCode]["suggestions"])) {
+        if (v > max) {
+            max = v;
+            max_sug = suggestion;
+        }
+    }
+    return max_sug;
+}
+
+const teardown = (roomCode) => {
+
+}
+
 wss.on("connection", socket => {
     console.log("Client connected on PORT: " + port);
     
@@ -68,10 +90,12 @@ wss.on("connection", socket => {
             rooms[roomCode] = new Set([socket]);
             names[roomCode] = new Set([data.name]);
             votes[roomCode] = {};
+            votes[roomCode]["peopleVoted"] = 0;
+            votes[roomCode]["suggestions"] = {};
             const message = {
                 "type": "create",
                 "status": "okay",
-                "members": names[roomCode],
+                "members": Array.from(names[roomCode]),
                 "roomCode": roomCode
             }
             sendJSON(message, socket);
@@ -86,7 +110,7 @@ wss.on("connection", socket => {
                     "type": "join",
                     "status": "okay",
                     "roomCode": roomCode,
-                    "members": names[roomCode]
+                    "members": Array.from(names[roomCode])
                 }
                 rooms[roomCode].forEach(member => {
                     sendJSON(message, member);
@@ -105,18 +129,18 @@ wss.on("connection", socket => {
             if (roomCode in rooms) {
                 const suggestion = data.suggestion;
                 let returnMessage;
-                if (suggestion in votes[roomCode]) {
+                if (suggestion in votes[roomCode]["suggestions"]) {
                     returnMessage = {
                         "type": "suggest",
                         "status": "duplicate",
-                        "suggestions": Object.keys(votes[roomCode])
+                        "suggestions": Object.keys(votes[roomCode]["suggestions"])
                     }
                 } else {
-                    votes[roomCode][suggestion] = 0;
+                    votes[roomCode]["suggestions"][suggestion] = 0;
                     returnMessage = {
                         "type": "suggest",
                         "status": "okay",
-                        "suggestions": Object.keys(votes[roomCode])
+                        "suggestions": Object.keys(votes[roomCode]["suggestions"])
                     }
                 }
                 
@@ -128,6 +152,47 @@ wss.on("connection", socket => {
                 console.log("bad");
                 const message = {
                     "type": "suggest",
+                    "status": "bad",
+                }      
+                sendJSON(message, socket);      
+            }
+        } else if (data.type === "vote") {
+            const roomCode = data.roomCode;
+            if (roomCode in rooms) {
+                const selectedSuggestions = data.selectedSuggestions;
+                let returnMessage;
+                for (suggestion of selectedSuggestions) {
+                    votes[roomCode]["suggestions"][suggestion]++;
+                }
+                votes[roomCode]["peopleVoted"]++;
+                
+                if (votes[roomCode]["peopleVoted"] >= rooms[roomCode].size) {
+                    returnMessage = {
+                        "type": "vote",
+                        "done": true,
+                        "status": "okay",
+                        "roomCode": roomCode,
+                        "numVoted": votes[roomCode]["peopleVoted"],
+                        "winner": calculateWinner(roomCode)
+                    };
+                    rooms[roomCode].forEach(member => {
+                        sendJSON(returnMessage, member);
+                    });
+                    teardown(roomCode);
+                } else {
+                    returnMessage = {
+                        "type": "vote",
+                        "done": false,
+                        "status": "okay",
+                        "roomCode": roomCode,
+                        "numVoted": votes[roomCode]["peopleVoted"]
+                    }
+                    sendJSON(returnMessage, socket);      
+                }
+            } else {
+                console.log("bad");
+                const message = {
+                    "type": "vote",
                     "status": "bad",
                 }      
                 sendJSON(message, socket);      

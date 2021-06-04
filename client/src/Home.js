@@ -3,6 +3,10 @@ import React from 'react';
 import HeaderBar from './HeaderBar.js';
 import JoinRoom from './JoinRoom.js';
 import CreateRoom from './CreateRoom.js';
+import SuggestionsPage from './SuggestionsPage.js';
+import VotingPage from './VotingPage.js';
+import ResultsPage from './ResultsPage.js';
+
 
 const ws = window.WebSocket || window.MozWebSocket;
 const wssURI = 'ws://localhost';
@@ -14,15 +18,22 @@ class Home extends React.Component {
       this.state = {
         connection: null,
         roomCode: 0,
+        isHost: false,
         inputtedCode: "",
         inputtedSuggestion: "",
         allSuggestions: [],
+        allNames: [],
         name: "",
-        showJoin: false,
-        showCreate: false,
+        screen: 0,
+        selectedSuggestions: new Set(),
+        numPeopleVoted: 0,
+        winner: "",
       };
   }
 
+  //////////////////////////////
+  //  websocket communcation  //
+  //////////////////////////////
   initializeConnection = (next) => {
       const url = wssURI + ":" + wssPort;
       let connection = new ws(url);
@@ -54,24 +65,42 @@ class Home extends React.Component {
           console.log(data);
 
           if (data.type === "create") {
+            if (data.status === "okay") {
               this.setState({
-                  roomCode: data.roomCode
+                  roomCode: data.roomCode,
+                  allNames: data.members,
+                  isHost: true
               });
+              this.changeScreen(3);
+            }
           }
           else if (data.type === "join") {
               if (data.status === "okay") {
                 this.setState({
-                  roomCode: data.roomCode
+                  roomCode: data.roomCode,
+                  allNames: data.members
                 });
+                this.changeScreen(3);
               }
           } 
           else if (data.type === "suggest") {
               this.setState({
                  allSuggestions: data.suggestions
               });
+          } 
+          else if (data.type === "vote") {
+            if (data.status === "okay") {
+              this.setState({
+                numPeopleVoted: data.numVoted,
+              });
+              if (data.done) {
+                this.setState({
+                  winner: data.winner,
+                });
+                this.changeScreen(5);
+              }
+            }
           }
-          // TODO: decide what to do when we recieve a message :)
-          // Basically, update screen with new info (participants/suggestions/votes)
       };
   }
 
@@ -81,6 +110,27 @@ class Home extends React.Component {
       connection.send(JSON.stringify(data));
     }
   }
+
+  //////////////////
+  //  navigation  //
+  //////////////////
+
+
+  // 0 - home
+  // 1 - home create
+  // 2 - home join
+  // 3 - suggest
+  // 4 - voting
+  // 5 - results
+  changeScreen = screen => {
+    this.setState({
+      screen: screen
+    });
+  }
+
+  //////////////////
+  //  room setup  //
+  //////////////////
 
   createRoom = () => {
     if (this.props.name === "") {
@@ -92,20 +142,7 @@ class Home extends React.Component {
           name: this.state.name
         });
       });
-      this.props.history.push('/suggest');
     }
-  }
-
-  toggleJoinInput = () => {
-    this.setState({
-      showJoin: !this.state.showJoin
-    });
-  }
-
-  toggleCreateInput = () => {
-    this.setState({
-      showCreate: !this.state.showCreate
-    });
   }
 
   handleRoomInput = ev => {
@@ -131,6 +168,10 @@ class Home extends React.Component {
     });
   }
 
+  ////////////////////////////
+  //  handling suggestions  //
+  ////////////////////////////
+
   handleSuggestionInput = ev => {
     this.setState({
       inputtedSuggestion: ev.target.value
@@ -146,24 +187,102 @@ class Home extends React.Component {
     })
   }
 
-  render() {
-      return (
-        <div>
-          <HeaderBar title="Can't Decide?"/>
-          <div id="home">
-            { !(this.state.showJoin || this.state.showCreate) &&
-              <div id="home-buttons">
-                <button className="btn" onClick={this.toggleCreateInput}>Create Room</button>
-                {/* Room Code: {this.state.roomCode} */}
-                <button className="btn" onClick={this.toggleJoinInput}>Join Room</button>
-              </div>
-            }
-            { this.state.showJoin && <JoinRoom handleRoomInput={this.handleRoomInput} handleNameInput={this.handleNameInput} joinRoom={this.joinRoom} cancelJoin={this.toggleJoinInput}/> }
-            { this.state.showCreate && <CreateRoom handleNameInput={this.handleNameInput} cancelCreate={this.toggleCreateInput} createRoom={this.createRoom}/> }
-          </div>
-        </div>
-      );
+  //////////////////////
+  //  handling votes  //
+  //////////////////////
+
+  toggleVote = ev => {
+    const { selectedSuggestions } = this.state;
+    const suggestion = ev.target.name;
+    if (ev.target.checked) {
+      selectedSuggestions.add(suggestion);
+    } else if (suggestion in selectedSuggestions) {
+      selectedSuggestions.delete(suggestion);
     }
+    this.setState({
+      selectedSuggestions: selectedSuggestions
+    });
+  }
+  
+  submitVote = () => {
+    const { roomCode, selectedSuggestions } = this.state;
+    console.log("submitting", selectedSuggestions);
+    this.sendMessage({
+      type: "vote",
+      roomCode: roomCode,
+      selectedSuggestions: Array.from(selectedSuggestions)
+    });
+  }
+
+  render() {
+    switch(this.state.screen) {
+      case 0: // home
+        return (
+          <div>
+            <HeaderBar title="Can't Decide?"/>
+            <div id="home">
+                <div id="home-buttons">
+                  <button className="btn" onClick={() => this.changeScreen(1)}>Create Room</button>
+                  {/* Room Code: {this.state.roomCode} */}
+                  <button className="btn" onClick={() => this.changeScreen(2)}>Join Room</button>
+                </div>
+            </div>
+          </div>
+        );
+      case 1: // create
+        return (
+          <div>
+            <HeaderBar title="Can't Decide?"/>
+            <div id="home">
+              <CreateRoom handleNameInput={this.handleNameInput} 
+                          cancelCreate={() => this.changeScreen(0)} 
+                          createRoom={this.createRoom}/>
+            </div>
+          </div>
+        );
+      case 2: // join 
+        return (
+          <div>
+            <HeaderBar title="Can't Decide?"/>
+            <div id="home">
+              <JoinRoom handleRoomInput={this.handleRoomInput} 
+                        handleNameInput={this.handleNameInput} 
+                        joinRoom={this.joinRoom} 
+                        cancelJoin={() => this.changeScreen(0)}/>
+            </div>
+          </div>
+        );
+      case 3: // suggest
+        return (
+          <div>
+            <SuggestionsPage roomCode={this.state.roomCode} 
+                             isHost={this.state.isHost} 
+                             names={this.state.allNames} 
+                             suggestions={this.state.allSuggestions} 
+                             handleSuggestion={this.handleSuggestionInput} 
+                             submitSuggestion={this.submitSuggestion}
+                             finishSuggestions={() => this.changeScreen(4)}/>
+          </div>
+        );
+      case 4: // vote
+        return (
+          <div>
+            <VotingPage roomCode={this.state.roomCode}
+                        suggestions={this.state.allSuggestions}
+                        toggleVote={this.toggleVote}
+                        submitVote={this.submitVote}/>
+          </div>
+        );
+      case 5: // result
+        return (
+          <div>
+            <ResultsPage winner={this.state.winner}/>
+          </div>
+        );      
+      default:
+        console.log("what");
+    }
+  }
 }
 
 export default Home;

@@ -1,0 +1,17 @@
+
+#suggestions-container {
+    display: flex;
+    flex-direction: column;
+}
+
+#suggestions-and-names {
+    display: flex;
+}
+
+#suggestions-list {
+    width: 66.66%
+}
+
+#names-list {
+    width: 33.33%;
+}

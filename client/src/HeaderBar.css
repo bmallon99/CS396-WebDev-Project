@@ -11,8 +11,11 @@
     color: white;
     /* border-bottom: 5px solid white; */
     margin-bottom: 1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
 }
 
-#header > h1 {
+#header > h1, h2 {
     margin: 0;
 }

@@ -3,11 +3,11 @@ import './HeaderBar.css';
 
 class HeaderBar extends React.Component {
     render() {
-        const code = this.props.roomCode;
+        const { title, roomCode } = this.props;
         return(
             <div id="header">
-                <h1>{this.props.title}</h1>
-                { !code ? '' : <h2>Room Code: {this.props.roomCode}</h2> }
+                <h1>{title}</h1>
+                { !roomCode ? '' : <h2>Room Code: {roomCode}</h2> }
             </div>
         );
     }
