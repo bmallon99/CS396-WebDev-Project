@@ -9,8 +9,8 @@ import ResultsPage from './ResultsPage.js';
 
 
 const ws = window.WebSocket || window.MozWebSocket;
-// const wssURI = 'ws://localhost:8081';
-const wssURI = window.location.origin.replace(/^http/, 'ws');
+const wssURI = 'ws://localhost:8081';
+// const wssURI = window.location.origin.replace(/^http/, 'ws');
 // const wssPort = '8081';
 
 class Home extends React.Component {
@@ -108,7 +108,6 @@ class Home extends React.Component {
                 this.setState({
                   winner: data.winner,
                 });
-                this.changeScreen(5);
               }
             }
           }
@@ -244,6 +243,7 @@ class Home extends React.Component {
       roomCode: roomCode,
       selectedSuggestions: Array.from(selectedSuggestions)
     });
+    this.changeScreen(5);
   }
 
   render() {
@@ -308,7 +308,8 @@ class Home extends React.Component {
       case 5: // result
         return (
           <div>
-            <ResultsPage winner={this.state.winner}/>
+            <ResultsPage numVoted={this.state.numPeopleVoted} 
+                         winner={this.state.winner}/>
           </div>
         );      
       default:

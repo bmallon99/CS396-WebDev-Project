@@ -106,7 +106,7 @@ wss.on("connection", socket => {
             rooms[roomCode] = new Set([socket]);
             names[roomCode] = new Set([data.name]);
             votes[roomCode] = {};
-            votes[roomCode]["peopleVoted"] = 0;
+            votes[roomCode]["peopleVoted"] = new Set();
             votes[roomCode]["suggestions"] = {};
             const message = {
                 "type": "create",
@@ -195,21 +195,22 @@ wss.on("connection", socket => {
             })
         } else if (data.type === "vote") {
             const roomCode = data.roomCode;
-            if (roomCode in rooms) {
+            if (roomCode in rooms && !(socket in votes[roomCode]["peopleVoted"])) {
                 const selectedSuggestions = data.selectedSuggestions;
                 let returnMessage;
                 for (const suggestion of selectedSuggestions) {
                     votes[roomCode]["suggestions"][suggestion]++;
                 }
-                votes[roomCode]["peopleVoted"]++;
+
+                votes[roomCode]["peopleVoted"].add(socket);
                 
-                if (votes[roomCode]["peopleVoted"] >= rooms[roomCode].size) {
+                if (votes[roomCode]["peopleVoted"].size >= rooms[roomCode].size) {
                     returnMessage = {
                         "type": "vote",
                         "done": true,
                         "status": "okay",
                         "roomCode": roomCode,
-                        "numVoted": votes[roomCode]["peopleVoted"],
+                        "numVoted": votes[roomCode]["peopleVoted"].size,
                         "winner": calculateWinner(roomCode)
                     };
                     rooms[roomCode].forEach(member => {
@@ -222,7 +223,7 @@ wss.on("connection", socket => {
                         "done": false,
                         "status": "okay",
                         "roomCode": roomCode,
-                        "numVoted": votes[roomCode]["peopleVoted"]
+                        "numVoted": votes[roomCode]["peopleVoted"].size
                     }
                     sendJSON(returnMessage, socket);      
                 }
@@ -244,6 +245,9 @@ wss.on("connection", socket => {
                     "type": "disconnect",
                     "status": "okay",
                     "members": Array.from(names[roomCode]),
+                }
+                if (names[roomCode].size === 0 || rooms[roomCode].size === 0) {
+                    teardown(roomCode);
                 }
             } else {
                 returnMessage =  {
