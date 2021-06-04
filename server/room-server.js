@@ -1,7 +1,19 @@
-const ws = require("ws");
+// const ws = require("ws");
+'use strict';
+
+const express = require('express');
+const { Server } = require('ws');
 
 const port = process.env.PORT || 8081;
-const wss = new ws.Server({ port });
+// const INDEX = '/index.html';
+
+const server = express()
+  .use((req, res) => res.sendFile(path.resolve(__dirname, '../client/build')))
+  .listen(port, () => console.log(`Listening on ${port}`));
+
+// const port = process.env.PORT || 8081;
+// const wss = new ws.Server({ port });
+const wss = new Server({ server });
 console.log("Application listening on PORT: " + port);
 
 // Dictionary mapping room numbers to set of clients (sockets)
@@ -62,8 +74,9 @@ const generateRoomCode = () => {
 }
 
 const calculateWinner = (roomCode) => {
-    max_sug = null;
-    max = 0;
+    let max_sug = null;
+    let max = 0;
+    console.log(Object.entries(votes[roomCode]["suggestions"]));
     for (const [suggestion, v] of Object.entries(votes[roomCode]["suggestions"])) {
         if (v > max) {
             max = v;
@@ -161,7 +174,7 @@ wss.on("connection", socket => {
             if (roomCode in rooms) {
                 const selectedSuggestions = data.selectedSuggestions;
                 let returnMessage;
-                for (suggestion of selectedSuggestions) {
+                for (const suggestion of selectedSuggestions) {
                     votes[roomCode]["suggestions"][suggestion]++;
                 }
                 votes[roomCode]["peopleVoted"]++;
