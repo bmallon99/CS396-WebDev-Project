@@ -170,6 +170,26 @@ wss.on("connection", socket => {
                 }      
                 sendJSON(message, socket);      
             }
+        } else if (data.type === "startVote") {
+            const roomCode = data.roomCode;
+            let returnMessage;
+            if (roomCode in rooms) {
+                returnMessage = {
+                    "type": "startVote",
+                    "status": "okay",
+                    "roomCode": roomCode,
+                    "suggestions": Object.keys(votes[roomCode]["suggestions"]),
+                };
+                
+            } else {
+                returnMessage = {
+                    "type": "startVote",
+                    "status": "bad",
+                };
+            }
+            rooms[roomCode].forEach(member => {
+                sendJSON(returnMessage, member);
+            })
         } else if (data.type === "vote") {
             const roomCode = data.roomCode;
             if (roomCode in rooms) {
