@@ -87,7 +87,11 @@ class Home extends React.Component {
                   allSuggestions: data.suggestions
                 });
                 this.changeScreen(3);
-              } else if (data.status === "bad") {
+              } else if (data.status === "duplicate") {
+                this.setState({
+                  joinError: "Name taken"
+                })
+              }  else if (data.status === "bad") {
                 this.setState({
                   joinError: "Room does not exist"
                 })

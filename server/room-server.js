@@ -121,17 +121,26 @@ wss.on("connection", socket => {
             const roomCode = data.roomCode;
             if (roomCode in rooms) {
                 rooms[roomCode].add(socket);
-                names[roomCode].add(data.name);
-                const message = {
-                    "type": "join",
-                    "status": "okay",
-                    "roomCode": roomCode,
-                    "members": Array.from(names[roomCode]),
-                    "suggestions": Object.keys(votes[roomCode]["suggestions"]),
+                if (names[roomCode].has(data.name)) {
+                    const message = {
+                        "type": "join",
+                        "status": "duplicate",
+                        "roomCode": roomCode
+                    }
+                    sendJSON(message, socket);
+                } else {
+                    names[roomCode].add(data.name);
+                    const message = {
+                        "type": "join",
+                        "status": "okay",
+                        "roomCode": roomCode,
+                        "members": Array.from(names[roomCode]),
+                        "suggestions": Object.keys(votes[roomCode]["suggestions"]),
+                    }
+                    rooms[roomCode].forEach(member => {
+                        sendJSON(message, member);
+                    });
                 }
-                rooms[roomCode].forEach(member => {
-                    sendJSON(message, member);
-                });
                 return;
             } else {
                 const message = {
