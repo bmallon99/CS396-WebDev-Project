@@ -195,7 +195,7 @@ wss.on("connection", socket => {
             })
         } else if (data.type === "vote") {
             const roomCode = data.roomCode;
-            if (roomCode in rooms && !(socket in votes[roomCode]["peopleVoted"])) {
+            if (roomCode in rooms && !(votes[roomCode]["peopleVoted"]).has(socket)) {
                 const selectedSuggestions = data.selectedSuggestions;
                 let returnMessage;
                 for (const suggestion of selectedSuggestions) {
@@ -225,7 +225,9 @@ wss.on("connection", socket => {
                         "roomCode": roomCode,
                         "numVoted": votes[roomCode]["peopleVoted"].size
                     }
-                    sendJSON(returnMessage, socket);      
+                    rooms[roomCode].forEach(member => {
+                        sendJSON(returnMessage, member);
+                    });     
                 }
             } else {
                 console.log("bad");

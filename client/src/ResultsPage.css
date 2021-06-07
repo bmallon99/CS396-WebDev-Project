@@ -1,0 +1,15 @@
+.results-text {
+    display: flex;
+    justify-content: center;
+    margin: 3rem;
+    font-size: xx-large;
+    border: 5px solid #776274;
+    border-radius: 20px;
+    padding: 1rem;
+}
+
+@media (max-width: 500px) {
+    .results-text {
+        font-size: large;
+    }
+}

@@ -20,12 +20,14 @@ ul {
     /* width: 50%; */
     border-bottom: 3px solid #776274;
     color: #1C0221;
+    margin: 0;
 }
 
 #names-list > h2 {
     /* width: 40%; */
     border-bottom: 3px solid #776274;
     color: #1C0221;
+    margin: 0;
 }
 
 #suggestions-list {
@@ -79,13 +81,14 @@ ul {
     width: 50%;
     display: flex;
     margin-bottom: 0.5rem;
-    align-items: end;
+    align-items: flex-end;
 }
 
 #label-and-continue > label {
     width: 75%;
     font-size: larger;
     font-weight: bold;
+    margin-right: 2%;
 }
 
 #label-and-continue > button {
@@ -105,6 +108,11 @@ ul {
 
 #suggestion-and-submit > button {
     width: 25%;
+}
+
+#error {
+    color: red;
+    margin: 0.75rem;
 }
 
 /* width */
@@ -127,12 +135,62 @@ background: gray;
 background: gray; 
 }
 
-@media (max-width: 500px) {
+@media (max-width: 1000px) {
     #label-and-continue {
-        width: 100%;
+        width: 90%;
     }
 
     #suggestion-and-submit {
+        width: 90%;
+    }
+
+    #suggestions-and-names {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #suggestions-list {
+        width: 90%;
+        margin-bottom: 2rem;
+    }
+
+    #names-list {
+        width: 90%;
+    }
+}
+
+@media (max-width: 500px) {
+    #label-and-continue {
+        width: 90%;
+        /* display: flex;
+        flex-direction: column-reverse;
+        align-items: flex-start; */
+    }
+
+    #label-and-continue > label {
+        width: 50%;
+    }
+    
+    #label-and-continue > button {
+        width: 50%;
+        /* margin-left: 50%; */
+    }
+
+    #suggestions-and-names {
+        margin: 2rem;
+    }
+
+    #suggestion-and-submit {
+        width: 90%;
+    }
+
+    #suggestions-list {
+        width: 100%;
+        margin-bottom: 2rem;
+    }
+
+    #names-list {
         width: 100%;
     }
 }

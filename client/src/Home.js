@@ -9,8 +9,8 @@ import ResultsPage from './ResultsPage.js';
 
 
 const ws = window.WebSocket || window.MozWebSocket;
-// const wssURI = 'ws://localhost:8081';
-const wssURI = window.location.origin.replace(/^http/, 'ws');
+const wssURI = 'ws://localhost:8081';
+// const wssURI = window.location.origin.replace(/^http/, 'ws');
 // const wssPort = '8081';
 
 class Home extends React.Component {
@@ -19,6 +19,9 @@ class Home extends React.Component {
       this.state = {
         connection: null,
         roomCode: 0,
+        createError: "",
+        joinError: "",
+        submitError:"",
         isHost: false,
         inputtedCode: "",
         inputtedSuggestion: "",
@@ -84,6 +87,10 @@ class Home extends React.Component {
                   allSuggestions: data.suggestions
                 });
                 this.changeScreen(3);
+              } else if (data.status === "bad") {
+                this.setState({
+                  joinError: "Room does not exist"
+                })
               }
           } 
           else if (data.type === "suggest") {
@@ -156,8 +163,13 @@ class Home extends React.Component {
   //////////////////
 
   createRoom = () => {
-    if (this.props.name === "") {
-      console.log("Please enter a name oh god oh fuck");
+    this.setState({
+      createError: ""
+    })
+    if (!this.validateString(this.state.name)) {
+      this.setState({
+        createError: "Please enter a name"
+      })
     } else {
       this.initializeConnection(() => {
         this.sendMessage({
@@ -188,14 +200,28 @@ class Home extends React.Component {
   }
   
   joinRoom = () => {
-    console.log("gooooo");
-    this.initializeConnection(() => {
-      this.sendMessage({
-        type: "join",
-        roomCode: parseInt(this.state.inputtedCode),
-        name: this.state.name
+    this.setState({
+      joinError: ""
+    })
+    if (!this.validateString(this.state.name))
+    {
+      this.setState({
+        joinError: "Please enter a name"
+      })
+    }
+    if (this.validateRoomNumber(this.state.inputtedCode)) {
+      this.initializeConnection(() => {
+        this.sendMessage({
+          type: "join",
+          roomCode: parseInt(this.state.inputtedCode),
+          name: this.state.name
+        });
       });
-    });
+    } else {
+      this.setState({
+        joinError: "Room codes should be a 4 digit number"
+      })
+    }
   }
 
   joinRoomOnEnter = ev => {
@@ -215,12 +241,25 @@ class Home extends React.Component {
   }
 
   submitSuggestion = () => {
-    const { roomCode, inputtedSuggestion } = this.state;
-    this.sendMessage({
-      type: "suggest",
-      roomCode: roomCode,
-      suggestion: inputtedSuggestion
+    this.setState({
+      submitError: ""
     })
+    console.log("wow");
+    const { roomCode, inputtedSuggestion } = this.state;
+    if (this.validateString(inputtedSuggestion)) {
+      this.sendMessage({
+        type: "suggest",
+        roomCode: roomCode,
+        suggestion: inputtedSuggestion
+      });
+      this.setState({
+        inputtedSuggestion: ""
+      })
+    } else {
+      this.setState({
+        submitError: "Please enter a suggestion"
+      })
+    }
   }
   
   submitSuggestionOnEnter = ev => {
@@ -244,14 +283,15 @@ class Home extends React.Component {
   toggleVote = ev => {
     const { selectedSuggestions } = this.state;
     const suggestion = ev.target.name;
+    console.log("stuff", ev.target);
+    console.log(selectedSuggestions);
+    console.log(ev.target.checked);
     if (ev.target.checked) {
       selectedSuggestions.add(suggestion);
-    } else if (suggestion in selectedSuggestions) {
+    } else if (selectedSuggestions.has(suggestion)) {
       selectedSuggestions.delete(suggestion);
     }
-    this.setState({
-      selectedSuggestions: selectedSuggestions
-    });
+    this.setState({ selectedSuggestions });
   }
   
   submitVote = () => {
@@ -263,6 +303,27 @@ class Home extends React.Component {
       selectedSuggestions: Array.from(selectedSuggestions)
     });
     this.changeScreen(5);
+  }
+
+  ////////////////////////
+  //  input validation  //
+  ////////////////////////
+
+  validateRoomNumber = val => {
+    val = val.trim();
+    const cleanedVal = val.replace(/([^0-9]+)/, "");
+    if (cleanedVal === "" || cleanedVal.length !== val.length || cleanedVal.length !== 4) {
+        return false;
+    }
+    return true;
+  }
+
+  validateString = val => {
+    val = val.trim();
+    if (val === "") {
+      return false;
+    }
+    return true;
   }
 
   render() {
@@ -288,7 +349,8 @@ class Home extends React.Component {
               <CreateRoom handleNameInput={this.handleNameInput} 
                           cancelCreate={() => this.changeScreen(0)} 
                           createRoom={this.createRoom}
-                          createRoomOnEnter={this.createRoomOnEnter}/>
+                          createRoomOnEnter={this.createRoomOnEnter}
+                          createError={this.state.createError}/>
             </div>
           </div>
         );
@@ -301,6 +363,7 @@ class Home extends React.Component {
                         handleNameInput={this.handleNameInput} 
                         joinRoom={this.joinRoom} 
                         joinRoomOnEnter={this.joinRoomOnEnter}
+                        joinError={this.state.joinError}
                         cancelJoin={() => this.changeScreen(0)}/>
             </div>
           </div>
@@ -313,8 +376,10 @@ class Home extends React.Component {
                              names={this.state.allNames} 
                              suggestions={this.state.allSuggestions} 
                              handleSuggestion={this.handleSuggestionInput} 
+                             inputtedSuggestion={this.state.inputtedSuggestion}
                              submitSuggestion={this.submitSuggestion}
                              submitSuggestionOnEnter={this.submitSuggestionOnEnter}
+                             submitError={this.state.submitError}
                              finishSuggestions={this.endSuggestions}/>
           </div>
         );
@@ -324,6 +389,7 @@ class Home extends React.Component {
             <VotingPage roomCode={this.state.roomCode}
                         suggestions={this.state.allSuggestions}
                         toggleVote={this.toggleVote}
+                        toggleVoteInDiv={this.toggleVoteInDiv}
                         submitVote={this.submitVote}/>
           </div>
         );
@@ -335,7 +401,7 @@ class Home extends React.Component {
           </div>
         );      
       default:
-        console.log("what");
+        <h1>404: Wat</h1>
     }
   }
 }

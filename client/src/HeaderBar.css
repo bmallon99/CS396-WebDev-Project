@@ -16,8 +16,10 @@
     align-items: baseline;
 }
 
-#header > h1, h2 {
+#header > h1, #header > h2 {
     margin: 0;
+    margin-left: 1.5%;
+    margin-right: 1.5%;
 }
 
 @media (max-width: 500px) {

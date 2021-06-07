@@ -25,3 +25,8 @@
     width: 75%;
     margin-bottom: 0.25rem;
 }
+
+#error {
+    color: red;
+    margin: 0.75rem;
+}

@@ -1,5 +1,6 @@
 import React from "react";
 import HeaderBar from "./HeaderBar.js";
+import './ResultsPage.css'
 
 class ResultsPage extends React.Component {
     render() {
@@ -8,8 +9,10 @@ class ResultsPage extends React.Component {
         return (
             <div>
                 <HeaderBar title="Results"></HeaderBar>
-                {done && <h1>{winner}</h1>}
-                {!done && <h2>People voted: {numVoted}</h2>}
+                <div class="results-text">
+                    {done && <h1>Winner: {winner}</h1>}
+                    {!done && <h2>People voted: {numVoted}</h2>}
+                </div>
             </div>
         )
     }

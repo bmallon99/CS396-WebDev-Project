@@ -5,21 +5,22 @@ import './SuggestionsPage.css';
 class SuggestionsPage extends React.Component {
 
     render() {
-        const { roomCode, isHost, names, handleSuggestion, submitSuggestion, submitSuggestionOnEnter, suggestions, finishSuggestions} = this.props;
+        const { roomCode, isHost, names, handleSuggestion, inputtedSuggestion, submitSuggestion, submitSuggestionOnEnter, submitError, suggestions, finishSuggestions} = this.props;
         return (
             <div>
                 <HeaderBar title="Suggestions" roomCode={roomCode}></HeaderBar>
                 <div id="suggestions-container">
-                    <span id="suggestions-and-continue">
+                    <div id="suggestions-and-continue">
                         <div id="label-and-continue">
                             <label>Suggestion: </label>
                             { isHost && <button className="btn" onClick={finishSuggestions}>Continue to Voting</button> }
                         </div>
                         <div id="suggestion-and-submit">
-                        <input onChange={handleSuggestion} placeholder="my suggestion" onKeyUp={submitSuggestionOnEnter}/>
+                        <input onChange={handleSuggestion} value={inputtedSuggestion} placeholder="my suggestion" onKeyUp={submitSuggestionOnEnter}/>
                             <button className="btn" onClick={submitSuggestion}>Submit</button>
                         </div>
-                    </span>
+                        <div id="error">{submitError}</div>
+                    </div>
                     <div id="suggestions-and-names">
                         <div id="suggestions-list">
                             <h2>Suggestions</h2> 

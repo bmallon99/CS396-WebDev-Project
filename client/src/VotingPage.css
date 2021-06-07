@@ -1,7 +1,14 @@
+#voting-body {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
 #voting-container {
     margin-top: 3rem;
-    margin-left: 10rem;
-    margin-right: 10rem;
+    /* margin-left: 10rem;
+    margin-right: 10rem; */
+    width: 80%;
     padding: 1rem;
     display: flex;
     flex-direction: column;
@@ -39,7 +46,6 @@
 }
 
 #submit-button > button{
-    width: 20%;
     height: 2.5rem;
 }
 
