@@ -9,8 +9,8 @@ import ResultsPage from './ResultsPage.js';
 
 
 const ws = window.WebSocket || window.MozWebSocket;
-const wssURI = 'ws://localhost:8081';
-// const wssURI = window.location.origin.replace(/^http/, 'ws');
+// const wssURI = 'ws://localhost:8081';
+const wssURI = window.location.origin.replace(/^http/, 'ws');
 // const wssPort = '8081';
 
 class Home extends React.Component {
