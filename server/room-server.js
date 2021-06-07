@@ -246,6 +246,9 @@ wss.on("connection", socket => {
                     "status": "okay",
                     "members": Array.from(names[roomCode]),
                 }
+                rooms[roomCode].forEach(member => {
+                    sendJSON(returnMessage, member);
+                });
                 if (names[roomCode].size === 0 || rooms[roomCode].size === 0) {
                     teardown(roomCode);
                 }
@@ -254,10 +257,8 @@ wss.on("connection", socket => {
                     "type": "disconnect",
                     "status": "bad",
                 }
+                // sendJSON(returnMessage, socket);
             }
-            rooms[roomCode].forEach(member => {
-                sendJSON(returnMessage, member);
-            });
         }
 
         // this loop sends the message that was just received to all the connected clients:

@@ -5,18 +5,19 @@ class JoinRoom extends React.Component {
     
     
     render() {
+        const { handleNameInput, handleRoomInput, joinRoom, joinRoomOnEnter, cancelJoin } = this.props;
         return (
             <div id="join-room">
                 <span>
                     <label>Name</label>
-                    <input onChange={this.props.handleNameInput} placeholder="Name"/>
+                    <input onChange={handleNameInput} placeholder="Name"/>
                 </span>
                 <span>
                     <label>Room Code</label>
-                    <input onChange={this.props.handleRoomInput} placeholder="Room Code"/>
+                    <input onChange={handleRoomInput} placeholder="Room Code" onKeyUp={joinRoomOnEnter}/>
                 </span>
-                <button className="btn" onClick={this.props.joinRoom}>Join</button>
-                <button className="btn" onClick={this.props.cancelJoin}>Cancel</button>
+                <button className="btn" onClick={joinRoom}>Join</button>
+                <button className="btn" onClick={cancelJoin}>Cancel</button>
             </div>
         );
     }

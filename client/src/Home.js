@@ -9,8 +9,8 @@ import ResultsPage from './ResultsPage.js';
 
 
 const ws = window.WebSocket || window.MozWebSocket;
-// const wssURI = 'ws://localhost:8081';
-const wssURI = window.location.origin.replace(/^http/, 'ws');
+const wssURI = 'ws://localhost:8081';
+// const wssURI = window.location.origin.replace(/^http/, 'ws');
 // const wssPort = '8081';
 
 class Home extends React.Component {
@@ -168,6 +168,13 @@ class Home extends React.Component {
     }
   }
 
+  createRoomOnEnter = ev => {
+    console.log("enter enter");
+    if (ev.keyCode === 13) {
+      this.createRoom();
+    }
+  }
+
   handleRoomInput = ev => {
     this.setState({
       inputtedCode: ev.target.value
@@ -191,6 +198,12 @@ class Home extends React.Component {
     });
   }
 
+  joinRoomOnEnter = ev => {
+    if (ev.keyCode === 13) {
+      this.joinRoom();
+    }
+  }
+
   ////////////////////////////
   //  handling suggestions  //
   ////////////////////////////
@@ -208,6 +221,12 @@ class Home extends React.Component {
       roomCode: roomCode,
       suggestion: inputtedSuggestion
     })
+  }
+  
+  submitSuggestionOnEnter = ev => {
+    if (ev.keyCode === 13) {
+      this.submitSuggestion();
+    }
   }
 
   endSuggestions = () => {
@@ -268,7 +287,8 @@ class Home extends React.Component {
             <div id="home">
               <CreateRoom handleNameInput={this.handleNameInput} 
                           cancelCreate={() => this.changeScreen(0)} 
-                          createRoom={this.createRoom}/>
+                          createRoom={this.createRoom}
+                          createRoomOnEnter={this.createRoomOnEnter}/>
             </div>
           </div>
         );
@@ -280,6 +300,7 @@ class Home extends React.Component {
               <JoinRoom handleRoomInput={this.handleRoomInput} 
                         handleNameInput={this.handleNameInput} 
                         joinRoom={this.joinRoom} 
+                        joinRoomOnEnter={this.joinRoomOnEnter}
                         cancelJoin={() => this.changeScreen(0)}/>
             </div>
           </div>
@@ -293,6 +314,7 @@ class Home extends React.Component {
                              suggestions={this.state.allSuggestions} 
                              handleSuggestion={this.handleSuggestionInput} 
                              submitSuggestion={this.submitSuggestion}
+                             submitSuggestionOnEnter={this.submitSuggestionOnEnter}
                              finishSuggestions={this.endSuggestions}/>
           </div>
         );

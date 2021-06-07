@@ -2,16 +2,137 @@
 #suggestions-container {
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 
 #suggestions-and-names {
     display: flex;
+    margin: 4rem;
+    /* justify-content: center; */
+}
+
+ul {
+    list-style-type: square;
+    font-size: larger;
+}
+
+#suggestions-list > h2 {
+    /* width: 50%; */
+    border-bottom: 3px solid #776274;
+    color: #1C0221;
+}
+
+#names-list > h2 {
+    /* width: 40%; */
+    border-bottom: 3px solid #776274;
+    color: #1C0221;
 }
 
 #suggestions-list {
-    width: 66.66%
+    width: 70%;
+    height: 25rem;
+    padding: 1em;
+    border: 5px solid #776274;
+    margin-right: 1em;
+    border-radius: 15px;
+}
+
+#suggestions-list > ul {
+    height: 19rem;
+    overflow-y: auto;
+    scrollbar-color: gray #E4DEE4;
+    /* border-top: 1px solid #776274;
+    border-bottom: 1px solid #776274; */
+    border: 1px dashed #776274;
 }
 
 #names-list {
-    width: 33.33%;
+    width: 30%;
+    height: 25rem;
+    /* overflow-y: auto; */
+    border: 5px solid #776274;
+    padding: 1em;
+    margin-right: 1em;
+    border-radius: 15px;
+}
+
+#names-list > ul {
+    height: 19rem;
+    overflow-y: auto;
+    scrollbar-color: gray #E4DEE4;
+    border: 1px dashed #776274;
+}
+
+#suggestions-and-continue {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#suggestions-and-continue button {
+    height: 2.5rem;
+}
+
+#label-and-continue {
+    width: 50%;
+    display: flex;
+    margin-bottom: 0.5rem;
+    align-items: end;
+}
+
+#label-and-continue > label {
+    width: 75%;
+    font-size: larger;
+    font-weight: bold;
+}
+
+#label-and-continue > button {
+    width: 25%;
+}
+
+#suggestion-and-submit {
+    width: 50%;
+    display: flex;
+}
+
+#suggestion-and-submit > input {
+    width: 75%;
+    margin-right: 2%;
+    line-height: 2rem;
+}
+
+#suggestion-and-submit > button {
+    width: 25%;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+/* Track */
+::-webkit-scrollbar-track {
+background: #E4DEE4; 
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+background: gray; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+background: gray; 
+}
+
+@media (max-width: 500px) {
+    #label-and-continue {
+        width: 100%;
+    }
+
+    #suggestion-and-submit {
+        width: 100%;
+    }
 }

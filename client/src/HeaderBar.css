@@ -19,3 +19,10 @@
 #header > h1, h2 {
     margin: 0;
 }
+
+@media (max-width: 500px) {
+    #header {
+        display: flex;
+        flex-direction: column;
+    }    
+}
