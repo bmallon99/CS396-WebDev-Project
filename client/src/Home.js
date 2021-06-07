@@ -181,7 +181,6 @@ class Home extends React.Component {
   }
 
   createRoomOnEnter = ev => {
-    console.log("enter enter");
     if (ev.keyCode === 13) {
       this.createRoom();
     }
@@ -244,7 +243,6 @@ class Home extends React.Component {
     this.setState({
       submitError: ""
     })
-    console.log("wow");
     const { roomCode, inputtedSuggestion } = this.state;
     if (this.validateString(inputtedSuggestion)) {
       this.sendMessage({
@@ -283,9 +281,6 @@ class Home extends React.Component {
   toggleVote = ev => {
     const { selectedSuggestions } = this.state;
     const suggestion = ev.target.name;
-    console.log("stuff", ev.target);
-    console.log(selectedSuggestions);
-    console.log(ev.target.checked);
     if (ev.target.checked) {
       selectedSuggestions.add(suggestion);
     } else if (selectedSuggestions.has(suggestion)) {
@@ -296,7 +291,6 @@ class Home extends React.Component {
   
   submitVote = () => {
     const { roomCode, selectedSuggestions } = this.state;
-    console.log("submitting", selectedSuggestions);
     this.sendMessage({
       type: "vote",
       roomCode: roomCode,

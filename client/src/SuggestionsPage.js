@@ -31,7 +31,7 @@ class SuggestionsPage extends React.Component {
                             </ul>
                         </div>
                         <div id="names-list">
-                            <h2>Names</h2>
+                            <h2>Participants</h2>
                             <ul> 
                                 {names.map(name => (
                                     <li key={name}>{name}</li>
