@@ -11,7 +11,6 @@ import ResultsPage from './ResultsPage.js';
 const ws = window.WebSocket || window.MozWebSocket;
 // const wssURI = 'ws://localhost:8081';
 const wssURI = window.location.origin.replace(/^http/, 'ws');
-// const wssPort = '8081';
 
 class Home extends React.Component {
   constructor(props) {
@@ -39,7 +38,6 @@ class Home extends React.Component {
   //  websocket communcation  //
   //////////////////////////////
   initializeConnection = (next) => {
-      // const url = wssURI + ":" + wssPort;
       const url = wssURI;
       let connection = new ws(url);
       this.setState({
@@ -333,7 +331,6 @@ class Home extends React.Component {
             <div id="home">
                 <div id="home-buttons">
                   <button className="btn" onClick={() => this.changeScreen(1)}>Create Room</button>
-                  {/* Room Code: {this.state.roomCode} */}
                   <button className="btn" onClick={() => this.changeScreen(2)}>Join Room</button>
                 </div>
             </div>
